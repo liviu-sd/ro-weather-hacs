@@ -1,0 +1,9 @@
+{
+    "name": "LSD: Weather RO",
+    "render_readme": false,
+    "country": "RO",
+    "domain": "cloud_polling",
+    "documentation": "https://github.com/liviu-sd/ro-weather-hacs",
+    "issue_tracker": "https://github.com/liviu-sd/ro-weather-hacs/issues",
+    "hacs": "2.0.5"
+}      
