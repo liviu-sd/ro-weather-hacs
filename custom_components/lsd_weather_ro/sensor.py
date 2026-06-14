@@ -406,6 +406,18 @@ SENSOR_DESCRIPTIONS: tuple[SensorEntityDescription, ...] = (
         entity_registry_enabled_default=False,
     ),
     SensorEntityDescription(key="nebulozitate", icon="mdi:cloudy", name="Nebulozity"),
+    SensorEntityDescription(
+        key="last_updated",
+        name="Last Updated",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="last_checked",
+        name="Last checked",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
 )
 
 
@@ -439,10 +451,9 @@ async def async_setup_entry(
 
     # Create entities for standard descriptions if data is available
     for description in SENSOR_DESCRIPTIONS:
-        # Check if the key exists in the model and its value is not None
-        value = getattr(current_data, description.key, None)
-        if value is not None:
-            _LOGGER.debug(f"Creating entity for {description.key} (value: {value})")
+        # Check if the key exists in the model
+        if hasattr(current_data, description.key):  # value is not None:
+            _LOGGER.debug(f"Creating entity for {description.key}")
             entities_to_add.append(
                 AnmhWeatherSensor(
                     entry.runtime_data.coordinator_current_conditions,
@@ -454,7 +465,7 @@ async def async_setup_entry(
             )
         else:
             _LOGGER.debug(
-                f"Skipping entity creation for {description.key} (value is None)"
+                f"Skipping entity creation for {description.key} (unknown attribute)"
             )
 
     if entities_to_add:
@@ -534,6 +545,9 @@ class AnmhWeatherSensor(
         if precision is not None and isinstance(value, (int, float)):
             return round(value, precision)
 
+        if self.entity_description.device_class == SensorDeviceClass.TIMESTAMP:
+            return dt_util.as_local(value)
+        
         return (
             value  # Return string as is (e.g., cardinal direction) or None if missing
         )

@@ -13,6 +13,6 @@ DEFAULT_PLATFORMS: Final[list[Platform]] = [
 
 CONF_FORECAST_LOCATION: Final = "conf_forecast_location"
 
-CURRENT_CONDITIONS_UPDATE_INTERVAL: Final[timedelta] = timedelta(minutes=15)
-FORECAST_DAILY_UPDATE_INTERVAL: Final[timedelta] = timedelta(minutes=1)  # hours=1)
+CURRENT_CONDITIONS_UPDATE_INTERVAL: Final[timedelta] = timedelta(minutes=5)
+FORECAST_DAILY_UPDATE_INTERVAL: Final[timedelta] = timedelta(minutes=15)  # hours=1)
 SERVICE_GET_WATHER: Final = "get_weather"

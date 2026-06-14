@@ -85,8 +85,11 @@ class WeatherData:
 
     # update_time: datetime
 
-    def __init__(self, stareaVremii: Properties):
+    def __init__(
+        self, stareaVremii: Properties, last_check_time: datetime | None = None
+    ):
         self._stareaVremii = stareaVremii
+        self.last_checked = last_check_time if last_check_time else datetime.now()
         self.temperature = float(stareaVremii.tempe)
         self.relative_humidity_percent = float(stareaVremii.umezeala)
         p, p_um, trend = get_pressure(self._stareaVremii.presiunetext)
@@ -149,6 +152,10 @@ class WeatherData:
     @property
     def itu_perception(self) -> str:
         itu_class = "Unknown"
+        
+        if self.itu_index == None:
+            return itu_class
+        
         if self.itu_index <= 70:
             itu_class = "comfortable"
         elif self.itu_index > 70 and self.itu_index <= 75:
@@ -172,6 +179,13 @@ class WeatherData:
     def dew_point(self) -> float:
         return calc_dewpoint(self.relative_humidity_percent, self.temperature)
 
+    @property
+    def last_updated(self) -> datetime:
+        espected_format = "%d-%m-%Y&nbsp;ora&nbsp;%H:%M"
+        dt = datetime.strptime(self._stareaVremii.actualizat, espected_format)
+
+        return dt
+
 
 @dataclass
 class BaseTimelineEntry:
@@ -189,18 +203,24 @@ class BaseTimelineEntry:
             else "unknown"
         )
 
-def get_float(v:str|None):
+
+def get_float(v: str | None):
     try:
         return float(v)
     except Exception:
         return None
-    
+
+
 @dataclass
 class Forecast24hTimelineEntry(BaseTimelineEntry):
     def __init__(self, fd: Element):
         self.data = datetime.fromisoformat(d) if (d := fd.get("data")) != None else None
-        self.temp_max = get_float(d.text) if (d := fd.find("temp_max")) != None else None
-        self.temp_min = get_float(d.text) if (d := fd.find("temp_min")) != None else None
+        self.temp_max = (
+            get_float(d.text) if (d := fd.find("temp_max")) != None else None
+        )
+        self.temp_min = (
+            get_float(d.text) if (d := fd.find("temp_min")) != None else None
+        )
         self.fenomen_descriere = (
             d.text if (d := fd.find("fenomen_descriere")) != None else None
         )

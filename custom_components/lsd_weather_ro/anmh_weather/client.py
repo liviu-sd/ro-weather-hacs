@@ -2,6 +2,7 @@ import aiohttp
 import logging
 from typing import Optional, Type
 import xml.etree.ElementTree as ET
+from datetime import datetime
 
 from .const import FORECAST_5_DAYS_URL, WEATHER_URL
 from .models import (
@@ -75,7 +76,8 @@ class AnmhWeather:
         )
 
         return WeatherData(
-            observation[0].properties
+            observation[0].properties,
+            last_check_time=datetime.now(),
         )  # is list for consistency with forecast data
 
     async def get_forecast(self) -> list[Forecast24hTimelineEntry]:
