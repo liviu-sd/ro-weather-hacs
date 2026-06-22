@@ -50,6 +50,7 @@ FORECAST_CONDITIONS_MAPPING = {
     "lightning-rainy": [
         "CER TEMPORAR NOROS, AVERSE, DESCARCARI ELECTRICE",
         "Variabil / temporar noros cu ploaie slaba si descarcari electrice",
+        "Variabil / temporar noros cu ploaie moderata si descarcari electrice",
         "Noros cu ploaie si descarcari electrice",
     ],
     "partlycloudy": [
