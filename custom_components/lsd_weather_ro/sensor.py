@@ -513,11 +513,9 @@ class AnmhWeatherSensor(
         icon = None
         if self.entity_description.key in ["condition_raw", "condition"]:
             icon = "mdi:cloud-question-outline"
-            if (
-                self.coordinator.data.condition
-                and self.coordinator.data.condition != "indisponibil"
-            ):
-                icon = f"mdi:weather-{self.coordinator.data.condition}"
+            c = getattr(self.coordinator.data, "condition", None)
+            if c and c != "indisponibil":
+                icon = f"mdi:weather-{c}"
 
         if self.entity_description.key in ["extreme_phenomena", "nebulosity"]:
             icon = "mdi:crosshairs-question"  # cloud-question-outline
@@ -547,7 +545,7 @@ class AnmhWeatherSensor(
 
         if self.entity_description.device_class == SensorDeviceClass.TIMESTAMP:
             return dt_util.as_local(value)
-        
+
         return (
             value  # Return string as is (e.g., cardinal direction) or None if missing
         )
