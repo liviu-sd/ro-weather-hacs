@@ -369,13 +369,13 @@ SENSOR_DESCRIPTIONS: tuple[SensorEntityDescription, ...] = (
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_registry_enabled_default=False,
     ),
-    SensorEntityDescription(
-        key="itu_index",
-        name="ITU",
-        icon="mdi:checkbox-marked-circle",
-        state_class=SensorStateClass.MEASUREMENT,
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
+    # SensorEntityDescription(
+    #     key="itu_index",
+    #     name="ITU",
+    #     icon="mdi:checkbox-marked-circle",
+    #     state_class=SensorStateClass.MEASUREMENT,
+    #     entity_category=EntityCategory.DIAGNOSTIC,
+    # ),
     SensorEntityDescription(
         key="itu_perception",
         name="ITU Perception",
@@ -608,20 +608,32 @@ class AnmhWeatherSensor(
 
         # current_data: WeatherData = self.coordinator.data.get("current")[0]
 
+        extra_state_attributes = None
+
         if "condition_raw" == self.entity_description.key:
-            return self.coordinator.data.raw_data
+            extra_state_attributes = self.coordinator.data.raw_data
 
         if "condition" == self.entity_description.key:
-            return self.get_condition_attributes()
+            extra_state_attributes = self.get_condition_attributes()
+
+        if "itu_perception" == self.entity_description.key:
+            extra_state_attributes = {
+                "itu_index": self.coordinator.data.itu_index,
+            }
 
         valid_utc: Optional[datetime] = getattr(self.coordinator.data, "valid", None)
 
         if valid_utc:
             # Convert the UTC datetime object from the API to local time
             local_valid_time = dt_util.as_local(valid_utc)
-            return {"last_updated": local_valid_time.isoformat()}
-        else:
-            return None
+            return (extra_state_attributes if extra_state_attributes else {}) | {
+                "last_updated": local_valid_time.isoformat()
+            }
+
+        if extra_state_attributes:
+            return extra_state_attributes
+        # else:
+        #     return None
 
     # @property
     # def available(self) -> bool:
