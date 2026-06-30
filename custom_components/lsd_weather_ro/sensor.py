@@ -617,9 +617,13 @@ class AnmhWeatherSensor(
             extra_state_attributes = self.get_condition_attributes()
 
         if "itu_perception" == self.entity_description.key:
-            extra_state_attributes = {
-                "itu_index": self.coordinator.data.itu_index,
-            }
+            index, txt, t, h = self.coordinator.data.itu_index
+            if index:
+                extra_state_attributes = {
+                    "itu_index": index,
+                    "temperature": t,
+                    "humidity": h,
+                }
 
         valid_utc: Optional[datetime] = getattr(self.coordinator.data, "valid", None)
 

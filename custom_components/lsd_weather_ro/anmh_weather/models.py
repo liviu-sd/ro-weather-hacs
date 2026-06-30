@@ -138,38 +138,29 @@ class WeatherData:
             return None
 
     @property
-    def itu_index(self) -> int | None:
+    def itu_index(self) -> tuple[int, str, float, float] | None:
         #  ((id(temperature).state * 1.8 + 32) - (0.55 - 0.55 * id(humidity).state / 100) * ((id(temperature).state * 1.8 + 32) - 58));
         try:
-            return int(
+            idx = int(
                 (self.temperature * 1.8 + 32)
                 - (0.55 - 0.55 * self.relative_humidity_percent / 100)
                 * ((self.temperature * 1.8 + 32) - 58)
+            )
+            perception = parse_itu_perception(idx)
+            return (
+                idx,
+                perception,
+                self.temperature,
+                self.relative_humidity_percent,
             )
         except:
             return None
 
     @property
-    def itu_perception(self) -> str:
-        itu_class = "Unknown"
-        
-        if self.itu_index == None:
-            return itu_class
-        
-        if self.itu_index <= 70:
-            itu_class = "comfortable"
-        elif self.itu_index > 70 and self.itu_index <= 75:
-            itu_class = "discomfort alert"
-        elif self.itu_index > 75 and self.itu_index <= 79.4:
-            itu_class = "uncomfortable"
-        elif self.itu_index > 79.4 and self.itu_index <= 80.0:
-            itu_class = "very uncomfortable"
-        elif self.itu_index > 80.0:
-            itu_class = "very very uncomfortable"
-        else:
-            itu_class = "Unknown"
+    def itu_perception(self) -> str | None:
+        idx, perception, v1, v2 = self.itu_index
 
-        return itu_class
+        return perception if idx else None
 
     @property
     def raw_data(self) -> dict[str, any]:
@@ -185,6 +176,25 @@ class WeatherData:
         dt = datetime.strptime(self._stareaVremii.actualizat, espected_format)
 
         return dt
+
+
+def parse_itu_perception(idx: int) -> str | None:
+    if idx <= 70:
+        itu_class = "comfortable"
+    elif idx > 70 and idx <= 75:
+        itu_class = "discomfort alert"
+    elif idx > 75 and idx <= 79.4:
+        itu_class = "uncomfortable"
+    elif idx > 79.4 and idx <= 80.0:
+        itu_class = "very uncomfortable"
+    elif idx > 80.0:
+        itu_class = "very very uncomfortable"
+    else:
+        itu_class = "Unknown"
+
+    return itu_class
+
+    return ""
 
 
 @dataclass
